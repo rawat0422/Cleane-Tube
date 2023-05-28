@@ -1,13 +1,32 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import getPlaylist from '../api';
+import {get,save} from '../utils/Stroage';
+ 
+
+const INT_STATE={
+	playlists: {},
+	recentPlaylists: [],
+	favorites: [],
+}
+
+const StroageKey = 'cy__playlist__state'
 const usePlaylists = () => {
-	const [state, setState] = useState({
-		playlists: {},
-		recentPlaylists: [],
-		favorites: [],
-	});
+	const [state, setState] = useState(INT_STATE);
 	const [error, setError] = useState('');
 	const [loading, setLoading] = useState(false);
+
+
+	useEffect(() => {
+		const state = get(StroageKey)
+		
+		if (state) {
+			setState({ ...state })
+		}
+	}, [])
+	useEffect(() => {
+		if(state!==INT_STATE)
+		save(StroageKey, state)
+	}, [state])
 
 	const getPlaylistById = async (playlistId, force = false) => {
 		if (state.playlists[playlistId] && !force) {
